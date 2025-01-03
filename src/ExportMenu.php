@@ -1805,8 +1805,6 @@ class ExportMenu extends GridView
      */
     protected function getColumnLabel($key, $column)
     {
-        \Yii::error(print_r($key,true),__METHOD__);
-
         if (is_int($key)) {
             $key++;
         }
