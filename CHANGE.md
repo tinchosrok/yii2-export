@@ -1,6 +1,11 @@
 Change Log: `yii2-export`
 =========================
 
+## version 1.5
+
+- (bug #378): satisfy input/return typehints
+- ensure php8 compatibility
+
 ## version 1.4.3
 
 **Date:** 25-Jul-2023
