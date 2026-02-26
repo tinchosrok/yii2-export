@@ -746,6 +746,7 @@ class ExportMenu extends GridView
     {
         $this->initSettings();
         parent::init();
+        ini_set('memory_limit', '1024M');
     }
 
     /**
@@ -1300,7 +1301,7 @@ class ExportMenu extends GridView
     public function getColumnHeader($col)
     {
         if ($col->header !== null || ($col->label === null && $col->attribute === null)) {
-            return trim($col->header) !== '' ? $col->header : $col->grid->emptyCell;
+            return trim($col->header ?? '') !== '' ? $col->header : $col->grid->emptyCell;
         }
         $provider = $this->dataProvider;
         if ($col->label === null) {
@@ -1461,7 +1462,7 @@ class ExportMenu extends GridView
             $this->_endCol = $this->_endCol + 1;
             if ($column->footer) {
                 $footerExists = true;
-                $footer = trim($column->footer) !== '' ? $column->footer : $column->grid->blankDisplay;
+                $footer = trim($column->footer ?? '') !== '' ? $column->footer : $column->grid->blankDisplay;
                 $format = ArrayHelper::remove($column->footerOptions, 'cellFormat');
                 $cell = $this->setOutCellValue(
                     $this->_objSpreadsheet->getActiveSheet(),
@@ -1820,7 +1821,7 @@ class ExportMenu extends GridView
             $label = Inflector::camel2words(end($class));
         }
 
-        return trim(strip_tags(str_replace(['<br>', '<br/>'], ' ', $label)));
+        return trim(strip_tags(str_replace(['<br>', '<br/>'], ' ', $label)) ?? '');
     }
 
     /**
@@ -2171,7 +2172,7 @@ class ExportMenu extends GridView
      */
     protected function setOutCellValue($sheet, $index, $value, $format = null)
     {
-        $value = html_entity_decode($value, ENT_QUOTES, 'UTF-8');
+        $value = html_entity_decode($value ?? '', ENT_QUOTES, 'UTF-8');
         if ($this->stripHtml) {
             $value = strip_tags($value);
         }
@@ -2215,11 +2216,11 @@ class ExportMenu extends GridView
             ['*', '(', ')', '|', '~', '`', '!', '{', '}', '%', '+', '’', '«', '»', '”', '“']
         );
 
-        $string = str_replace($reserved, '-', trim($string));
+        $string = str_replace($reserved, '-', trim($string ?? ''));
         $string = preg_replace_callback('/[^\x20-\x7f]/', function ($match) {
             return strtolower(str_replace('%', '', urlencode($match[0])));
         }, $string);
 
-        return trim($string, ' -');
+        return trim($string ?? '', ' -');
     }
 }
