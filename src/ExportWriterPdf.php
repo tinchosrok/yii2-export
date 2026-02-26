@@ -10,6 +10,7 @@ namespace kartik\export;
 
 use kartik\mpdf\Pdf;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 /**
  * Krajee custom PDF Writer library based on MPdf
@@ -17,29 +18,52 @@ use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
  * @author Kartik Visweswaran <kartikv2@gmail.com>
  * @since 1.0
  */
-class ExportWriterPdf extends Mpdf
-{
-    /**
-     * @var string the exported output file name. Defaults to 'grid-export';
-     */
-    public $filename = '';
-
-    /**
-     * @var array kartik\mpdf\Pdf component configuration settings
-     */
-    public $pdfConfig = [];
-
-    /**
-     * @inheritdoc
-     */
-    protected function createExternalWriterInstance($config = [])
+if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+    class ExportWriterPdf extends Mpdf
     {
-        if (isset($config['tempDir'])) {
-            unset($config['tempDir']);
-        }
-        $config = array_replace_recursive($config, $this->pdfConfig);
-        $pdf = new Pdf($config);
+        /**
+         * @var string the exported output file name. Defaults to 'grid-export';
+         */
+        public $filename = '';
 
-        return $pdf->getApi();
+        /**
+         * @var array kartik\mpdf\Pdf component configuration settings
+         */
+        public $pdfConfig = [];
+
+        /**
+         * @inheritdoc
+         */
+        protected function createExternalWriterInstance($config = [])
+        {
+            if (isset($config['tempDir'])) {
+                unset($config['tempDir']);
+            }
+            $config = array_replace_recursive($config, $this->pdfConfig);
+            $pdf = new Pdf($config);
+
+            return $pdf->getApi();
+        }
     }
+} else {
+    class ExportWriterPdf extends Mpdf
+    {
+        public function __construct(
+            Spreadsheet $spreadsheet,
+            public string $filename = '',
+            public array $pdfConfig=[]
+        )  {
+            parent::__construct($spreadsheet);
+        }
+
+        protected function createExternalWriterInstance(array $config ): \Mpdf\Mpdf
+        {
+            unset($config['tempDir']);
+            $config = array_replace_recursive($config, $this->pdfConfig);
+            $pdf = new Pdf($config);
+
+            return $pdf->getApi();
+        }
+    }    
 }
+
